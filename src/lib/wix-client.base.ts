@@ -1,5 +1,5 @@
 import { env } from "@/env";
-import { createClient, OAuthStrategy } from "@wix/sdk";
+import { createClient, OAuthStrategy, Tokens } from "@wix/sdk";
 import {
   backInStockNotifications,
   checkout,
@@ -13,7 +13,7 @@ import { redirects } from "@wix/redirects";
 import { reviews } from "@wix/reviews";
 import { collections, products } from "@wix/stores";
 
-export function getWixClient() {
+export function getWixClient(tokens: Tokens | undefined) {
   return createClient({
     modules: {
       products,
@@ -30,6 +30,9 @@ export function getWixClient() {
     },
     auth: OAuthStrategy({
       clientId: env.NEXT_PUBLIC_WIX_CLIENT_ID,
+      tokens,
     }),
   });
 }
+
+export type WixClient = ReturnType<typeof getWixClient>;

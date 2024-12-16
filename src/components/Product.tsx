@@ -46,15 +46,15 @@ function DisplayPrice({ product }: ProductProps) {
 
   if (min && max && min !== max) {
     return (
-      <div>
+      <div className="flex gap-1">
         from{" "}
         {dis != min ? (
-          <>
+          <div>
             <span className="font-semibold">{formatPrice(dis, currency)}</span>
             <span className="ml-1 font-light line-through">
               {formatPrice(min, currency)}
             </span>
-          </>
+          </div>
         ) : (
           <span className="font-semibold">{formatPrice(min, currency)}</span>
         )}

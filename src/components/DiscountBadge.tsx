@@ -9,7 +9,7 @@ interface DiscountBadgeProps {
 
 export default function DiscountBadge({ data, curdata }: DiscountBadgeProps) {
   return data.type !== "NONE" ? (
-    <Badge className="block">
+    <Badge className="block bg-red-600">
       {data.type === "PERCENT"
         ? `${data.value}%`
         : formatPrice(data.value, curdata.currency)}{" "}

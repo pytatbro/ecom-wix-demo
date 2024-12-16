@@ -1,58 +1,40 @@
-import Image from "next/image";
-import banner from "@/assets/banner.jpg";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { delay } from "@/lib/utils";
 import { Suspense } from "react";
-import { getWixClient } from "@/lib/wix-client.base";
 import Product from "@/components/Product";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getCollectionBySlug } from "@/wix-api/collections";
 import { fetchProducts } from "@/wix-api/products";
+import Slider from "@/components/Slider";
+import MovingBrands from "@/components/MovingBrands";
+import { getWixServerClient } from "@/lib/wix-client.server";
 
 export default function Home() {
   return (
-    <main className="mx-auto max-w-7xl space-y-16 px-5 py-10 2xl:max-w-screen-2xl">
-      <div className="flex items-center overflow-hidden rounded-2xl bg-secondary md:h-[27rem]">
-        <div className="space-y-7 p-10 text-center md:w-1/2">
-          <h1 className="text-3xl font-bold md:text-4xl">
-            Lorem ipsum dolor sit amet consectetur
-          </h1>
-          <p className="mx-auto max-w-lg">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Laborum
-            quam earum magnam asperiores modi perferendis corporis debitis.
-          </p>
-          <Button asChild>
-            <Link className="text-primary-foreground" href="/shop">
-              Shop Now <ArrowRight className="ml-2 size-5" />
-            </Link>
-          </Button>
-        </div>
-        <div className="relative hidden h-full w-1/2 md:block">
-          <Image
-            src={banner}
-            alt="QleuDemo banner"
-            className="h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-secondary via-transparent to-transparent" />
-        </div>
+    <main>
+      <Slider />
+      <div className="mx-auto w-full space-y-16 sm:shadow-sm">
+        <MovingBrands />
       </div>
-      <Suspense fallback={<LoadingSkeleton />}>
-        <FeaturedProducts />
-      </Suspense>
+      <div className="mx-auto max-w-7xl space-y-16 px-2 py-10 sm:px-5 2xl:max-w-screen-2xl">
+        <Suspense fallback={<LoadingSkeleton />}>
+          <FeaturedProducts />
+        </Suspense>
+      </div>
     </main>
   );
 }
 
 async function FeaturedProducts() {
-  await delay(1000);
-
-  const collection = await getCollectionBySlug("featured-products");
+  await delay(2000);
+  const wixServerClient = await getWixServerClient();
+  const collection = await getCollectionBySlug(
+    wixServerClient,
+    "featured-products",
+  );
   if (!collection?._id) {
     return null;
   }
-  const featuredProducts = await fetchProducts({
+  const featuredProducts = await fetchProducts(wixServerClient, {
     collectionIds: collection._id,
     sort: "lastUpdated",
   });
@@ -61,8 +43,10 @@ async function FeaturedProducts() {
   }
   return (
     <div className="space-y-6 md:space-y-10">
-      <h2 className="text-2xl font-bold">Featured Products</h2>
-      <div className="flex grid-cols-2 flex-col gap-6 sm:grid md:grid-cols-3 md:gap-10 lg:grid-cols-4">
+      <h2 className="py-6 text-center text-3xl font-bold lg:text-5xl">
+        Featured Products
+      </h2>
+      <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:gap-6 md:grid-cols-3 md:gap-10 lg:grid-cols-4">
         {featuredProducts.items.map((product) => (
           <Product key={product._id} product={product} />
         ))}
@@ -73,9 +57,9 @@ async function FeaturedProducts() {
 
 function LoadingSkeleton() {
   return (
-    <div className="flex grid-cols-2 flex-col gap-5 pt-12 sm:grid md:grid-cols-3 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-x-3 gap-y-6 pt-12 sm:gap-6 md:grid-cols-3 md:gap-10 lg:grid-cols-4">
       {Array.from({ length: 8 }).map((_, i) => (
-        <Skeleton key={i} className="h-[20rem] w-full" />
+        <Skeleton key={i} className="h-[13rem] w-full sm:h-[20rem]" />
       ))}
     </div>
   );

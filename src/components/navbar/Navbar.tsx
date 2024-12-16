@@ -2,22 +2,23 @@ import Image from "next/image";
 import Link from "next/link";
 import logo from "@/assets/logo.png";
 import { getCart } from "@/wix-api/cart";
+import { getWixServerClient } from "@/lib/wix-client.server";
+import CartButton from "./CartButton";
 
 export default async function Navbar() {
-  const cart = await getCart();
-  const number =
-    cart?.lineItems.reduce((acc, item) => acc + (item.quantity || 0), 0) || 0;
+  const wixServerClient = await getWixServerClient();
+  const cart = await getCart(wixServerClient);
+  
   return (
     <header className="bg-background shadow-sm">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-5 p-5 2xl:max-w-screen-2xl">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-5 p-5 min-[2000px]:max-w-[2000px]">
         <Link href="/" className="flex items-start gap-3">
-          <Image src={logo} alt="QleuDemo Logo" width={60} height={60} />
-          <div className="mt-5 text-2xl font-semibold">
+          <div className="text-2xl font-semibold 2xl:text-3xl">
             <span className="text-[#2173B1]">Qleu</span>
             <span className="text-[#F98E54]">Demo</span>
           </div>
         </Link>
-        {number} items in cart
+        <CartButton initialData={cart} />
       </div>
     </header>
   );

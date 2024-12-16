@@ -1,16 +1,68 @@
-import { getWixClient } from "@/lib/wix-client.base";
+import { env } from "@/env";
+import { isApplicationError } from "@/lib/applicationError";
+import { findVariant } from "@/lib/utils";
+import { WixClient } from "@/lib/wix-client.base";
+import { products } from "@wix/stores";
 
-export async function getCart() {
-  const wixclient = getWixClient();
+export async function getCart(wixClient: WixClient) {
   try {
-    return await wixclient.currentCart.getCurrentCart();
+    return await wixClient.currentCart.getCurrentCart();
   } catch (error) {
     if (
-      (error as any).details.applicationError.code === "OWNED_CART_NOT_FOUND"
+      isApplicationError(error) &&
+      error.details.applicationError.code === "OWNED_CART_NOT_FOUND"
     ) {
       return null;
     } else {
       throw error;
     }
   }
+}
+
+export interface CartValues {
+  product: products.Product;
+  selectedOptions: Record<string, string>;
+  quantity: number;
+}
+
+export async function addToCart(
+  wixClient: WixClient,
+  { product, selectedOptions, quantity }: CartValues,
+) {
+  const selectedVariant = findVariant(product, selectedOptions);
+  return wixClient.currentCart.addToCurrentCart({
+    lineItems: [
+      {
+        catalogReference: {
+          appId: env.NEXT_PUBLIC_WIX_STORE_APP_ID,
+          catalogItemId: product._id,
+          options: selectedVariant
+            ? { variantId: selectedVariant._id }
+            : { options: selectedOptions },
+        },
+        quantity,
+      },
+    ],
+  });
+}
+
+export interface UpdateCartItemQuantityValues {
+  productId: string;
+  newQuantity: number;
+}
+
+export async function updateCartItemQuantity(
+  wixClient: WixClient,
+  { productId, newQuantity }: UpdateCartItemQuantityValues,
+) {
+  return wixClient.currentCart.updateCurrentCartLineItemQuantity([
+    {
+      _id: productId,
+      quantity: newQuantity,
+    },
+  ]);
+}
+
+export async function removeCartItem(wixClient: WixClient, productId: string) {
+  return wixClient.currentCart.removeLineItemsFromCurrentCart([productId]);
 }

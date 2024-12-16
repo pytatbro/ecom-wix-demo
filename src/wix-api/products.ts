@@ -1,4 +1,5 @@
-import { getWixClient } from "@/lib/wix-client.base";
+import { WixClient } from "@/lib/wix-client.base";
+import { cache } from "react";
 
 type ProductSortType = "lastUpdated" | "ascPrice" | "descPrice";
 
@@ -7,11 +8,10 @@ interface ProductFilter {
   sort?: ProductSortType;
 }
 
-export async function fetchProducts({
-  collectionIds,
-  sort = "lastUpdated",
-}: ProductFilter) {
-  const wixClient = getWixClient();
+export async function fetchProducts(
+  wixClient: WixClient,
+  { collectionIds, sort = "lastUpdated" }: ProductFilter,
+) {
   let query = wixClient.products.queryProducts();
   const arr = collectionIds
     ? Array.isArray(collectionIds)
@@ -34,3 +34,14 @@ export async function fetchProducts({
   }
   return query.find();
 }
+
+export const fetchSingleProduct = cache(
+  async (wixClient: WixClient, slug: string) => {
+    const { items } = await wixClient.products
+      .queryProducts()
+      .eq("slug", slug)
+      .limit(1)
+      .find();
+    return !items[0] || !items[0].visible ? null : items[0];
+  },
+);

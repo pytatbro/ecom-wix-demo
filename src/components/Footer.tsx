@@ -201,13 +201,13 @@ export default function Footer() {
 
             <form action="#" method="POST" className="mt-6">
               <div>
-                <label htmlFor="email" className="sr-only">
+                <label htmlFor="footer-email" className="sr-only">
                   Email
                 </label>
                 <Input
                   type="email"
                   name="email"
-                  id="email"
+                  id="footer-email"
                   placeholder="Enter your email"
                   className="block w-full"
                 />
