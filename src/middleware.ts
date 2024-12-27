@@ -1,6 +1,7 @@
 import { createClient, OAuthStrategy, Tokens } from "@wix/sdk";
 import { env } from "./env";
 import { NextRequest, NextResponse } from "next/server";
+import { getWixClient } from "./lib/wix-client.base";
 
 const wixClient = createClient({
   auth: OAuthStrategy({ clientId: env.NEXT_PUBLIC_WIX_CLIENT_ID }),
@@ -39,6 +40,43 @@ export async function middleware(request: NextRequest) {
     },
   );
 
+  const isLoggedIn = getWixClient(sessionTokens).auth.loggedIn();
+
+  // Redirect URL for auth
+  const authPages = [
+    "/login",
+    "/signup",
+    "/forgot-password",
+    "/verification",
+    "/api/auth/login",
+    "/api/auth/signup",
+    "/api/auth/verification",
+    "/api/auth/forgot-password",
+    "/api/auth/external/google",
+  ];
+  const currentPath = request.nextUrl.pathname;
+
+  if (isLoggedIn && authPages.includes(currentPath)) {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  if (currentPath === "/verification") {
+    const token = request.nextUrl.searchParams.get("token");
+    const cookieToken = cookies.get(env.NEXT_PUBLIC_VERIFICATION_TOKEN_COOKIE);
+
+    if (!token || !cookieToken || token !== cookieToken.value) {
+      // Redirect unauthorized access to home page
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+  } else if (!authPages.includes(currentPath)) {
+    // Set the `redirectUrl` cookie for non-authentication pages
+    res.cookies.set("redirectUrl", currentPath, {
+      maxAge: 60 * 60, // 1 hour
+      path: "/",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
+  }
   return res;
 }
 

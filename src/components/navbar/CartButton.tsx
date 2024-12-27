@@ -40,7 +40,7 @@ export default function CartButton({
       <div className="relative">
         <Button variant="ghost" size="icon" onClick={() => setSheetOpen(true)}>
           <ShoppingCartIcon />
-          <span className="absolute right-0 top-0 flex size-5 items-center justify-center rounded-full bg-destructive text-xs text-primary-foreground">
+          <span className="absolute right-0 top-0 flex size-5 items-center justify-center rounded-full bg-destructive text-xs text-primary-foreground dark:bg-white">
             {number < 100 ? number : "99+"}
           </span>
         </Button>

@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { loginFormSchema } from "../formSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
   Form,
@@ -18,9 +17,23 @@ import {
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import Link from "next/link";
+import { env } from "@/env";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
+import LoadingButton from "@/components/LoadingButton";
+import useLoginSuccess from "@/hooks/use-login-success";
+import GoogleLoginButton from "@/components/GoogleLoginButton";
 
 export default function LoginForm() {
+  const router = useRouter();
   const { toast } = useToast();
+  const { loginSuccess } = useLoginSuccess();
+  const [resError, setResError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [disabledDuringExternalAuth, setDisabledDuringExternalAuth] =
+    useState(false);
+
   const loginForm = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -31,21 +44,64 @@ export default function LoginForm() {
 
   async function onSubmit(values: z.infer<typeof loginFormSchema>) {
     try {
-      // Assuming an async login function
+      setLoading(true);
+      setResError("");
       console.log(values);
+      const response = await fetch(
+        `${env.NEXT_PUBLIC_BASE_URL}/api/auth/login`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(values),
+        },
+      );
+      const res = await response.json();
+      if (!response.ok) {
+        setResError(res.error || "An unexpected error occurred.");
+        toast({
+          variant: "destructive",
+          description:
+            res.error || "An unexpected error occurred. Please try again.",
+        });
+        setLoading(false);
+        if (res.errorCode === "verifyNeeded") {
+          const token = crypto.randomUUID();
+          if (Cookies.get(env.NEXT_PUBLIC_VERIFICATION_TOKEN_COOKIE)) {
+            Cookies.remove(env.NEXT_PUBLIC_VERIFICATION_TOKEN_COOKIE);
+          }
+          Cookies.set(env.NEXT_PUBLIC_VERIFICATION_TOKEN_COOKIE, token, {
+            expires: 3 / 288,
+            secure: process.env.NODE_ENV === "production",
+          });
+          router.push(`/verification?token=${token}`);
+        }
+      } else {
+        toast({
+          description: "Login successful! Redirecting...",
+        });
+        await loginSuccess(res.sessionToken);
+      }
     } catch (error) {
-      console.error("Form submission error", error);
+      console.error("Login error", error);
       toast({
         variant: "destructive",
-        description: "Failed to submit the form. Please try again.",
+        description: "An unexpected error occurred. Please try again.",
       });
+      setLoading(false);
     }
   }
   return (
     <>
-      <Button variant="outline" className="w-full">
-        Login with Google
-      </Button>
+      <GoogleLoginButton
+        returnErrorString={(error) => {
+          setResError(error);
+          toast({ variant: "destructive", description: error });
+        }}
+        returnSuccessString={(message) => toast({ description: message })}
+        returnIsRunning={(isRunning) =>
+          setDisabledDuringExternalAuth(isRunning)
+        }
+      />
       <div className="flex items-center gap-4">
         <Separator className="shrink bg-black" />
         <span className="text-base font-semibold">OR</span>
@@ -97,15 +153,23 @@ export default function LoginForm() {
               </FormItem>
             )}
           />
+          {resError !== "" && (
+            <p className="text-sm font-medium text-destructive">{resError}</p>
+          )}
           <Link
             href="/forgot-password"
-            className="ml-auto text-sm font-normal text-black underline"
+            className="ml-auto text-sm font-normal underline"
           >
             Forgot your password?
           </Link>
-          <Button type="submit" className="w-full">
+          <LoadingButton
+            type="submit"
+            loading={loading}
+            disabled={disabledDuringExternalAuth}
+            className="w-full"
+          >
             Log in
-          </Button>
+          </LoadingButton>
         </form>
       </Form>
     </>

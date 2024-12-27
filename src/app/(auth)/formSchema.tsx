@@ -7,7 +7,7 @@ const email = z
   .email("Please type a valid email.");
 const password = z
   .string()
-  .min(6, { message: "Password must be at least 6 characters long" })
+  .min(6, { message: "Password must be at least 6 characters long." })
   .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/, {
     message: "Password must contain lowercase, uppercase, and number.",
   });
@@ -19,20 +19,29 @@ const loginFormSchema = z.object({
 
 const registerFormSchema = z
   .object({
-    name: z
+    firstName: z
       .string()
-      .min(2, { message: "Name must be at least 2 characters long" }),
+      .min(1, { message: "First name must be at least 1 characters long." }),
+    lastName: z
+      .string()
+      .min(1, { message: "Last name must be at least 1 characters long." }),
     email: email,
     password: password,
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     path: ["confirmPassword"],
-    message: "Passwords do not match",
+    message: "Passwords do not match.",
   });
 
 const forgotPassFormSchema = z.object({
   email: email,
 });
 
-export { loginFormSchema, registerFormSchema, forgotPassFormSchema };
+const verifyCodeFormSchema = z.object({
+  code: z.string().min(6, {
+    message: "The verification code must be 6 characters.",
+  }),
+});
+
+export { loginFormSchema, registerFormSchema, forgotPassFormSchema, verifyCodeFormSchema };
