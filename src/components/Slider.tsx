@@ -7,6 +7,7 @@ import Image from "next/image";
 import slide1 from "@/assets/slide1.jpg";
 import slide2 from "@/assets/slide2.jpg";
 import slide3 from "@/assets/slide3.jpg";
+import { cn } from "@/lib/utils";
 
 const slides = [
   {
@@ -15,8 +16,8 @@ const slides = [
     description: "Sale! Up to 50% off!",
     img: slide1,
     url: "/",
-    bg: "bg-gradient-to-r from-yellow-50 via-pink-50 to-pink-50",
-    ovl: "pink-50",
+    bg: "bg-gradient-to-r from-pink-50 via-blue-50 to-blue-50",
+    ovl: "blue-50",
   },
   {
     id: 2,
@@ -24,8 +25,8 @@ const slides = [
     description: "Sale! Up to 50% off!",
     img: slide2,
     url: "/",
-    bg: "bg-gradient-to-r from-pink-50 via-blue-50 to-blue-50",
-    ovl: "blue-50",
+    bg: "bg-gradient-to-r from-yellow-50 via-pink-50 to-pink-50",
+    ovl: "pink-50",
   },
   {
     id: 3,
@@ -50,14 +51,17 @@ export default function Slider() {
   // }, []);
 
   return (
-    <div className="h-[calc(100vh-80px)] overflow-hidden relative">
+    <div className="relative h-[calc(100vh-80px)] overflow-hidden">
       <div
         className="flex h-full w-max transition-all duration-1000 ease-in-out"
         style={{ transform: `translateX(-${current * 100}vw)` }}
       >
         {slides.map((slide) => (
           <div
-            className={`${slide.bg} flex h-full w-screen flex-col gap-16 xl:flex-row`}
+            className={cn(
+              slide.bg,
+              "flex h-full w-screen flex-col gap-16 dark:from-secondary dark:via-secondary dark:to-secondary xl:flex-row",
+            )}
             key={slide.id}
           >
             <div className="flex h-full flex-col items-center justify-center gap-8 text-center xl:w-1/2 2xl:gap-12">
@@ -85,7 +89,9 @@ export default function Slider() {
                 sizes="100%"
                 className="object-cover"
               />
-              <div className={`absolute inset-0 bg-gradient-to-r from-${slide.ovl} via-transparent to-transparent`} />
+              <div
+                className={`absolute inset-0 bg-gradient-to-r from-${slide.ovl} via-transparent to-transparent dark:from-secondary`}
+              />
             </div>
           </div>
         ))}

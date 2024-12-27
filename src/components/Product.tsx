@@ -13,7 +13,7 @@ export default function Product({ product }: ProductProps) {
   const mImg = product.media?.mainMedia?.image;
 
   return (
-    <Link href={`/products/${product.slug}`} className="h-full bg-card">
+    <Link href={`/products/${product.slug}`} className="h-full">
       <div className="relative overflow-hidden rounded-lg">
         <WixImg
           mediaIdentifier={mImg?.url}
