@@ -1,3 +1,4 @@
+import PaginationBar from "@/components/PaginationBar";
 import Product from "@/components/Product";
 import { Skeleton } from "@/components/ui/skeleton";
 import { delay } from "@/lib/utils";
@@ -10,6 +11,7 @@ import { Suspense } from "react";
 
 interface CollectionPageProps {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ page?: string }>;
 }
 
 export async function generateMetadata({
@@ -31,8 +33,12 @@ export async function generateMetadata({
   };
 }
 
-export default async function CollectionPage({ params }: CollectionPageProps) {
+export default async function CollectionPage({
+  params,
+  searchParams,
+}: CollectionPageProps) {
   const { slug } = await params;
+  const { page } = await searchParams;
   const collection = await getCollectionBySlug(
     await getWixServerClient(),
     slug,
@@ -41,10 +47,11 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
 
   return (
     <section>
-      <Suspense fallback={<LoadingSkeleton />}>
+      <Suspense fallback={<LoadingSkeleton />} key={page}>
         <CollectionProducts
           collectionId={collection._id}
           collectionName={collection.name || "Products"}
+          page={parseInt(page || "1")}
         />
       </Suspense>
     </section>
@@ -54,21 +61,27 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
 async function CollectionProducts({
   collectionId,
   collectionName,
+  page,
 }: {
   collectionId: string;
   collectionName: string;
+  page: number;
 }) {
   await delay(2000);
+  const productsLimit = 8; // (number of products in a page) should be 12 for optimal
   const collectionProducts = await fetchProducts(await getWixServerClient(), {
     collectionIds: collectionId,
+    limit: productsLimit,
+    skip: (page - 1) * productsLimit,
   });
   if (!collectionProducts.items.length) notFound();
+  if (page > (collectionProducts.totalPages || 1)) notFound();
   return (
     <div className="mx-auto max-w-7xl space-y-5 px-2 py-24 sm:px-5 2xl:max-w-screen-2xl">
       <h2 className="text-2xl font-bold">
         {collectionName}
         {" ("}
-        {collectionProducts.items.length}
+        {collectionProducts.totalCount}
         {")"}
       </h2>
       <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:gap-6 md:grid-cols-3 md:gap-10 lg:grid-cols-4">
@@ -76,6 +89,10 @@ async function CollectionProducts({
           <Product key={product._id} product={product} />
         ))}
       </div>
+      <PaginationBar
+        currentPage={page}
+        totalPages={collectionProducts.totalPages || 1}
+      />
     </div>
   );
 }
