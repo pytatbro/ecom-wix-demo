@@ -1,7 +1,6 @@
 import { env } from "@/env";
-import { getWixServerClient } from "@/lib/wix-client.server";
+import { getWixManageMembersClient, getWixServerClient } from "@/lib/wix-client.server";
 import { members } from "@wix/members";
-import { ApiKeyStrategy, createClient } from "@wix/sdk";
 import axios from "axios";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
@@ -24,16 +23,8 @@ export async function POST(req: NextRequest) {
       },
     );
     const userInfo = userInfoResponse.data;
-    const apiWixClient = createClient({
-      modules: {
-        members,
-      },
-      auth: ApiKeyStrategy({
-        apiKey: env.WIX_EXTERNAL_LOGIN_API_KEY,
-        siteId: env.WIX_SITE_ID,
-      }),
-    });
-    const { items } = await apiWixClient.members
+    const wixManageMembersClient = getWixManageMembersClient();
+    const { items } = await wixManageMembersClient.members
       .queryMembers()
       .eq("loginEmail", userInfo.email)
       .find();
@@ -41,7 +32,7 @@ export async function POST(req: NextRequest) {
     if (items && items.length > 0) {
       user = items[0];
     } else {
-      user = await apiWixClient.members.createMember({
+      user = await wixManageMembersClient.members.createMember({
         member: {
           loginEmail: userInfo.email,
           contact: {
