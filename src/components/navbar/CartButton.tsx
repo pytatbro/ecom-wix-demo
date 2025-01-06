@@ -16,7 +16,13 @@ import {
   ShoppingCartIcon,
   Trash2,
 } from "lucide-react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "../ui/sheet";
 import Link from "next/link";
 import WixImg from "../WixImg";
 import { formatPrice } from "@/lib/utils";
@@ -51,6 +57,10 @@ export default function CartButton({
             <SheetTitle className="text-center text-2xl font-bold lg:text-3xl">
               Your cart ({number} {number === 1 ? "item" : "items"})
             </SheetTitle>
+            <SheetDescription className="sr-only">
+              Cart page: Review your selected items, update quantities, or
+              remove products before proceeding to checkout.
+            </SheetDescription>
           </SheetHeader>
           <div className="flex grow flex-col space-y-5 overflow-y-auto">
             <ul className="space-y-5">
@@ -79,7 +89,7 @@ export default function CartButton({
                     className="flex gap-2 text-base lg:py-7 2xl:text-lg"
                     asChild
                   >
-                    <Link href="/shop" onClick={() => setSheetOpen(false)}>
+                    <Link href="/store" onClick={() => setSheetOpen(false)}>
                       Start shopping now <ArrowRight />
                     </Link>
                   </Button>

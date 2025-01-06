@@ -13,3 +13,22 @@ export const getLoggedInMember = cache(
     return memberData.member || null;
   },
 );
+
+export interface UpdateMemberContactInfoValues {
+  firstName: string;
+  lastName: string;
+  birthdate: string;
+}
+
+export async function updateMemberContactInfo(
+  wixClient: WixClient,
+  { firstName, lastName, birthdate }: UpdateMemberContactInfoValues,
+) {
+  const member = await getLoggedInMember(wixClient);
+  if (!member?._id) {
+    throw new Error("Member is not logged in");
+  }
+  return wixClient.members.updateMember(member._id, {
+    contact: { firstName, lastName, birthdate },
+  });
+}

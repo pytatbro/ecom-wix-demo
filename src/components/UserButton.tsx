@@ -29,20 +29,26 @@ import { useTheme } from "next-themes";
 
 interface UserButtonProps {
   loggedInMember: members.Member | null;
-  clasName?: string;
+  className?: string;
+  isMobile?: boolean;
 }
 
 export default function UserButton({
   loggedInMember,
-  clasName,
+  className,
+  isMobile = false,
 }: UserButtonProps) {
   const { logout } = useLogOut();
   const { theme, setTheme } = useTheme();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button size="icon" variant="ghost" className={clasName}>
-          <UserIcon />
+        <Button
+          size={isMobile ? "default" : "icon"}
+          variant="ghost"
+          className={className}
+        >
+          {isMobile ? "Account & Theme" : <UserIcon />}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="min-w-44 max-w-64">
