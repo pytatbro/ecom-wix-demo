@@ -11,11 +11,11 @@ type WixImgProps = Omit<
   alt?: string | null | undefined;
 } & (
     | {
-        scaleToFill?: true;
+        scaletofill?: true;
         width: number;
         height: number;
       }
-    | { scaleToFill: false }
+    | { scaletofill: false }
   );
 
 export default function WixImg({
@@ -25,7 +25,7 @@ export default function WixImg({
   ...props
 }: WixImgProps) {
   const imgUrl = mediaIdentifier
-    ? props.scaleToFill || props.scaleToFill === undefined
+    ? props.scaletofill || props.scaletofill === undefined
       ? wixMedia.getScaledToFillImageUrl(
           mediaIdentifier,
           props.width,

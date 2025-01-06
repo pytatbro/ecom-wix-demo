@@ -158,7 +158,9 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
               </>
             ) : (
               <>
-                <div className="text-lg font-medium">Sorry, this item is currently out of stock</div>
+                <div className="text-lg font-medium">
+                  Sorry, this item is currently out of stock
+                </div>
                 <BackInStockButton product={product} selectedOptions={select} />
               </>
             )}
@@ -173,6 +175,40 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
             </div>
           )}
         </div>
+        {/* {!!product.additionalInfoSections?.length && (
+          <div className="space-y-5 text-lg text-foreground">
+            <span className="flex items-center gap-2">
+              <InfoIcon className="size-5" />
+              <span>Additional product information</span>
+            </span>
+            <Accordion type="multiple">
+              {product.additionalInfoSections
+                .filter(
+                  (item) =>
+                    item.title !== "Short Description" &&
+                    item.title !== "shortDescription",
+                )
+                .map((section) => (
+                  <AccordionItem
+                    value={section.title || ""}
+                    key={section.title}
+                  >
+                    <AccordionTrigger className="font-semibold">
+                      {section.title}
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: sanitize(section.description || ""),
+                        }}
+                        className="prose text-lg text-foreground dark:prose-invert"
+                      />
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+            </Accordion>
+          </div>
+        )} */}
         {!!product.additionalInfoSections?.length && (
           <div className="space-y-5 text-lg text-foreground">
             <span className="flex items-center gap-2">
@@ -180,21 +216,40 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
               <span>Additional product information</span>
             </span>
             <Accordion type="multiple">
-              {product.additionalInfoSections.map((section) => (
-                <AccordionItem value={section.title || ""} key={section.title}>
-                  <AccordionTrigger className="font-semibold">
-                    {section.title}
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <div
-                      dangerouslySetInnerHTML={{
-                        __html: sanitize(section.description || ""),
-                      }}
-                      className="prose text-lg text-foreground dark:prose-invert"
-                    />
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
+              {(() => {
+                if (
+                  product.description &&
+                  !product.additionalInfoSections.some(
+                    (section) => section.title === "Description",
+                  )
+                ) {
+                  product.additionalInfoSections.unshift({
+                    title: "Description",
+                    description: product.description,
+                  });
+                }
+                return product.additionalInfoSections
+                  .filter(
+                    (item) =>
+                      item.title !== "Short Description" &&
+                      item.title !== "shortDescription",
+                  )
+                  .map((section, index) => (
+                    <AccordionItem value={section.title || ""} key={index}>
+                      <AccordionTrigger className="font-semibold">
+                        {section.title}
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html: sanitize(section.description || ""),
+                          }}
+                          className="prose text-lg text-foreground dark:prose-invert"
+                        />
+                      </AccordionContent>
+                    </AccordionItem>
+                  ));
+              })()}
             </Accordion>
           </div>
         )}
