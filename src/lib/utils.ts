@@ -49,3 +49,20 @@ export function isInstock(
       : checkInventoryStatus
     : checkInventoryStatus;
 }
+
+export const productsLimit = 8; // (number of products in a page) should be 12 for optimal
+
+export function paginateArray<T>(
+  array: T[],
+  { limit, skip }: { limit: number; skip: number },
+): { items: T[]; totalPages: number; totalCount: number } {
+  const totalCount = array.length;
+  const totalPages = Math.ceil(totalCount / limit);
+  const items = array.slice(skip, skip + limit);
+
+  return {
+    items,
+    totalPages,
+    totalCount,
+  };
+}

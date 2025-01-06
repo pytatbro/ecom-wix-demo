@@ -1,9 +1,9 @@
 import PaginationBar from "@/components/PaginationBar";
 import Product from "@/components/Product";
 import { Skeleton } from "@/components/ui/skeleton";
-import { delay } from "@/lib/utils";
+import { delay, productsLimit } from "@/lib/utils";
 import { getWixServerClient } from "@/lib/wix-client.server";
-import { getCollectionBySlug } from "@/wix-api/collections";
+import { getCollectionBySlug, getCollections } from "@/wix-api/collections";
 import { fetchProducts } from "@/wix-api/products";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -18,6 +18,11 @@ export async function generateMetadata({
   params,
 }: CollectionPageProps): Promise<Metadata> {
   const { slug } = await params;
+  const wixServerClient = await getWixServerClient();
+  const collectionSlugs = (await getCollections(wixServerClient)).map(
+    (collection) => collection.slug,
+  );
+  if (!collectionSlugs.includes(slug)) notFound();
   const collection = await getCollectionBySlug(
     await getWixServerClient(),
     slug,
@@ -38,9 +43,14 @@ export default async function CollectionPage({
   searchParams,
 }: CollectionPageProps) {
   const { slug } = await params;
+  const wixServerClient = await getWixServerClient();
+  const collectionSlugs = (await getCollections(wixServerClient)).map(
+    (collection) => collection.slug,
+  );
+  if (!collectionSlugs.includes(slug)) notFound();
   const { page } = await searchParams;
   const collection = await getCollectionBySlug(
-    await getWixServerClient(),
+    wixServerClient,
     slug,
   );
   if (!collection?._id) notFound();
@@ -68,7 +78,6 @@ async function CollectionProducts({
   page: number;
 }) {
   await delay(2000);
-  const productsLimit = 8; // (number of products in a page) should be 12 for optimal
   const collectionProducts = await fetchProducts(await getWixServerClient(), {
     collectionIds: collectionId,
     limit: productsLimit,

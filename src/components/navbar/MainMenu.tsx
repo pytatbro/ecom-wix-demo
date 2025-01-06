@@ -23,9 +23,9 @@ export default function MainMenu({ collections, className }: MainMenuProps) {
     <NavigationMenu className={className}>
       <NavigationMenuList>
         <NavigationMenuItem>
-          <Link href="/shop" legacyBehavior passHref>
+          <Link href="/store" legacyBehavior passHref>
             <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-              Shop
+              Store
             </NavigationMenuLink>
           </Link>
         </NavigationMenuItem>
