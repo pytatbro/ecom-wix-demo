@@ -10,8 +10,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { products } from "@wix/stores";
 import { getLoggedInMember } from "@/wix-api/members";
 import CreateReviewButton from "@/components/review/CreateReviewButton";
-import ProductReviews from "./ProductReviews";
-import { getProductReviews } from "@/wix-api/reviews";
+import ProductReviews, {
+  ProductReviewsLoadingSkeleton,
+} from "./ProductReviews";
+import { getProductReviews, getReviewStats } from "@/wix-api/reviews";
+import ReviewStats, {
+  ReviewStatsLoadingSkeleton,
+} from "@/components/review/ReviewStats";
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -52,7 +57,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const product = await fetchSingleProduct(wixServerClient, slug);
   if (!product?._id) notFound();
   return (
-    <main className="mx-auto max-w-7xl space-y-14 px-5 py-10 2xl:max-w-screen-2xl">
+    <main className="mx-auto max-w-7xl space-y-24 px-5 py-10 2xl:max-w-screen-2xl">
       <ProductDetails product={product} />
       <Suspense fallback={<RelatedSectionLoadingSkeleton />}>
         <RelatedProducts productId={product._id} />
@@ -61,7 +66,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <h2 className="pb-6 text-center text-3xl font-bold lg:text-4xl">
           Reviews
         </h2>
-        <Suspense fallback="Loading reviews...">
+        <Suspense fallback={<ProductReviewsSectionLoadingSkeleton />}>
           <ProductReviewsSection product={product} />
         </Suspense>
       </div>
@@ -128,14 +133,36 @@ async function ProductReviewsSection({ product }: ProductReviewsProps) {
     : null;
   await delay(5000);
 
+  const allReviews = await getProductReviews(wixClient, {
+    productId: product._id,
+  });
+  const reviewStat = getReviewStats(allReviews.items);
   return (
-    <div className="space-y-5">
-      <CreateReviewButton
-        product={product}
-        loggedInMember={loggedInMember}
-        memberAlreadyReviewed={!!existingReview}
-      />
+    <div className="flex w-full flex-col justify-center gap-14 max-lg:items-center lg:flex-row lg:gap-10">
+      <div className="h-fit w-full max-w-sm space-y-5 lg:sticky lg:top-10 lg:basis-1/4">
+        <ReviewStats
+          avgRating={reviewStat.avgRating}
+          ratingByStar={reviewStat.ratingByStar}
+          totalNumberOfReviews={reviewStat.totalNumberOfReviews}
+        />
+        <CreateReviewButton
+          product={product}
+          loggedInMember={loggedInMember}
+          memberAlreadyReviewed={!!existingReview}
+        />
+      </div>
       <ProductReviews product={product} />
+    </div>
+  );
+}
+
+function ProductReviewsSectionLoadingSkeleton() {
+  return (
+    <div className="flex w-full flex-col justify-center gap-14 max-lg:items-center lg:flex-row lg:gap-10">
+      <div className="h-fit w-full max-w-sm space-y-5 lg:sticky lg:top-10 lg:basis-1/4">
+        <ReviewStatsLoadingSkeleton />
+      </div>
+      <ProductReviewsLoadingSkeleton />
     </div>
   );
 }

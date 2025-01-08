@@ -175,40 +175,6 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
             </div>
           )}
         </div>
-        {/* {!!product.additionalInfoSections?.length && (
-          <div className="space-y-5 text-lg text-foreground">
-            <span className="flex items-center gap-2">
-              <InfoIcon className="size-5" />
-              <span>Additional product information</span>
-            </span>
-            <Accordion type="multiple">
-              {product.additionalInfoSections
-                .filter(
-                  (item) =>
-                    item.title !== "Short Description" &&
-                    item.title !== "shortDescription",
-                )
-                .map((section) => (
-                  <AccordionItem
-                    value={section.title || ""}
-                    key={section.title}
-                  >
-                    <AccordionTrigger className="font-semibold">
-                      {section.title}
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div
-                        dangerouslySetInnerHTML={{
-                          __html: sanitize(section.description || ""),
-                        }}
-                        className="prose text-lg text-foreground dark:prose-invert"
-                      />
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-            </Accordion>
-          </div>
-        )} */}
         {!!product.additionalInfoSections?.length && (
           <div className="space-y-5 text-lg text-foreground">
             <span className="flex items-center gap-2">

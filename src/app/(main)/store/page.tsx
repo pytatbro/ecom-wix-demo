@@ -12,7 +12,7 @@ import {
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import EmptySvg from "./EmptySvg";
+import EmptySvg from "../../../components/EmptySvg";
 
 interface ProductResultPageProps {
   searchParams: Promise<{

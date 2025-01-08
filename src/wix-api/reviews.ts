@@ -1,6 +1,7 @@
 import { WixClient } from "@/lib/wix-client.base";
 import { getLoggedInMember } from "./members";
 import { differenceInDays, format, isToday } from "date-fns";
+import { reviews } from "@wix/reviews";
 
 export interface CreateProductReviewValues {
   productId: string;
@@ -85,4 +86,50 @@ export function displayReviewDateText(date: Date | undefined) {
     }
   }
   return displayText;
+}
+
+interface RatingByStarObject {
+  [key: number]: number; // Key is a number (e.g., 1, 2, 3, 4, 5), value is the count
+}
+
+export interface ReviewStatsObject {
+  avgRating: number;
+  ratingByStar: RatingByStarObject;
+  totalNumberOfReviews: number;
+}
+
+export function getReviewStats(reviews: reviews.Review[]): ReviewStatsObject {
+  const noReview: ReviewStatsObject = {
+    avgRating: 0,
+    ratingByStar: {
+      1: 0,
+      2: 0,
+      3: 0,
+      4: 0,
+      5: 0,
+    },
+    totalNumberOfReviews: 0,
+  };
+  if (!reviews.length) return noReview;
+
+  const ratings = reviews
+    .map((review) => review.content?.rating)
+    .filter((rating): rating is number => rating !== undefined);
+  if (!ratings.length) return noReview;
+  const totalNumberOfReviews = ratings.length;
+  const avgRating =
+    ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length;
+  // Count occurrences of each rating (1 to 5)
+  const ratingByStar = ratings.reduce(
+    (acc, rating) => {
+      acc[rating] = (acc[rating] || 0) + 1;
+      return acc;
+    },
+    { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } as Record<number, number>,
+  );
+  return {
+    avgRating: parseFloat(avgRating.toFixed(1)),
+    ratingByStar,
+    totalNumberOfReviews,
+  };
 }
