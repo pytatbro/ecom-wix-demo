@@ -4,7 +4,7 @@ import ProductDetails from "./ProductDetails";
 import { Metadata } from "next";
 import { getWixServerClient } from "@/lib/wix-client.server";
 import { Suspense } from "react";
-import { delay } from "@/lib/utils";
+// import { delay } from "@/lib/utils";
 import Product from "@/components/Product";
 import { Skeleton } from "@/components/ui/skeleton";
 import { products } from "@wix/stores";
@@ -50,7 +50,7 @@ export async function generateMetadata({
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  await delay(3000);
+  // await delay(3000);
   const { slug } = await params;
   const wixServerClient = await getWixServerClient();
 
@@ -79,7 +79,7 @@ interface RelatedProductsProps {
 }
 
 async function RelatedProducts({ productId }: RelatedProductsProps) {
-  await delay(2000);
+  // await delay(2000);
   const relatedProducts = await getRelatedProducts(
     await getWixServerClient(),
     productId,
@@ -131,7 +131,7 @@ async function ProductReviewsSection({ product }: ProductReviewsProps) {
         })
       ).items[0]
     : null;
-  await delay(5000);
+  // await delay(5000);
 
   const allReviews = await getProductReviews(wixClient, {
     productId: product._id,

@@ -77,7 +77,7 @@ async function CollectionProducts({
   collectionName: string;
   page: number;
 }) {
-  await delay(2000);
+  // await delay(2000);
   const collectionProducts = await fetchProducts(await getWixServerClient(), {
     collectionIds: collectionId,
     limit: productsLimit,

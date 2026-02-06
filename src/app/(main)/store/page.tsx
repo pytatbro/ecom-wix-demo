@@ -83,7 +83,7 @@ async function ProductResult({
   maxPrice,
   sort,
 }: ProductResultProps) {
-  await delay(2000);
+  // await delay(2000);
   let products;
   if (q) {
     const beforeSearch = await fetchProducts(await getWixServerClient(), {

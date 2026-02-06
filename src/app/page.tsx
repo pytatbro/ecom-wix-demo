@@ -1,4 +1,4 @@
-import { delay } from "@/lib/utils";
+// import { delay } from "@/lib/utils";
 import { Suspense } from "react";
 import Product from "@/components/Product";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -25,7 +25,7 @@ export default function Home() {
 }
 
 async function FeaturedProducts() {
-  await delay(2000);
+  // await delay(2000);
   const wixServerClient = await getWixServerClient();
   const collection = await getCollectionBySlug(
     wixServerClient,
