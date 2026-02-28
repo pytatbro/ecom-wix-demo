@@ -1,6 +1,7 @@
 # QleuDemo Store - E-Commerce Platform
 
 A full-stack e-commerce application built with **Next.js 15**, **React 19**, **TypeScript**, and the **Wix API** for headless e-commerce management. Built for fun and also for learning purpose.
+[https://qleudemostore.netlify.app/](https://qleudemostore.netlify.app/)
 
 ![Landing Page](./page.png)
 ![Products Page](./store.png)
