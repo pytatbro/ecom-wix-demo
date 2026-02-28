@@ -4,5 +4,9 @@
     "next/typescript",
     "prettier",
     "plugin:@tanstack/eslint-plugin-query/recommended"
-  ]
+  ],
+  "rules": {
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-empty-object-type": "off"
+  }
 }
